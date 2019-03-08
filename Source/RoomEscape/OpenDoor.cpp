@@ -34,39 +34,44 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 
 	// check player trigger to open door
-	if (GetTotalMassOfActor()>50.f)
+	if (GetTotalMassOfActor()>triggerMass)
 	{
-		OpenDoor();
-		lastTimeCloseDoor = GetWorld()->GetTimeSeconds();
+		onOpenRequest.Broadcast();
+		//OpenDoor();
+		//lastTimeCloseDoor = GetWorld()->GetTimeSeconds();
 	}
-	float currentTime = GetWorld()->GetTimeSeconds();
-	if (currentTime - lastTimeCloseDoor > closeDoorDelay)
+	/*float currentTime = GetWorld()->GetTimeSeconds();
+	if (currentTime - lastTimeCloseDoor > closeDoorDelay)*/
+	else
 	{
-		CloseDoor();
+		onCloseRequest.Broadcast();
 	}
 	
 }
 
-void UOpenDoor::OpenDoor()
-{
-	owner -> SetActorRotation(FRotator(0.f, -openAngle, 0.f));
-}
+//void UOpenDoor::OpenDoor()
+//{
+//	//owner -> SetActorRotation(FRotator(0.f, -openAngle, 0.f));
+//	onOpenRequest.Broadcast();
+//}
 
-void UOpenDoor::CloseDoor()
-{
-	owner->SetActorRotation(FRotator(0.f, 0.f, 0.f));
-}
+//void UOpenDoor::CloseDoor()
+//{
+//	owner->SetActorRotation(FRotator(0.f, 0.f, 0.f));
+//}
 
 float UOpenDoor::GetTotalMassOfActor()
 {
+	
 	float totalMass = 0.f;
 	TArray<AActor*> overLappingActor;
+	if (!pressurePlate) { return totalMass; }
 	pressurePlate->GetOverlappingActors(OUT overLappingActor);
 
 	for (const auto* actor : overLappingActor)
 	{
 		totalMass += actor->FindComponentByClass <UPrimitiveComponent>()->GetMass();
-		UE_LOG(LogTemp, Warning, TEXT("Name is %s"), *actor->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Name is %s"), *actor->GetName());
 	}
 
 	return totalMass;
